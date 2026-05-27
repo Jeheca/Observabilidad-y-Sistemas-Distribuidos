@@ -1,0 +1,12 @@
+# Carga automática de los dashboards que estén en /etc/grafana/dashboards.
+
+apiVersion: 1
+
+providers:
+  - name: Taracea
+    folder: Taracea
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/dashboards

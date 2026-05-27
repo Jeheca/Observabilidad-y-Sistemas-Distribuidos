@@ -1,0 +1,87 @@
+@if (ordenConfirmada(); as ordenId) {
+  <section class="carrito__confirmacion">
+    <h2>Pedido recibido</h2>
+    <p>Tu orden <strong>#{{ ordenId }}</strong> fue registrada. ¡Gracias por tu compra!</p>
+    <a routerLink="/" class="boton boton--primario">Volver al catálogo</a>
+  </section>
+} @else if (carrito.items().length === 0) {
+  <section class="carrito__vacio">
+    <h2>Tu carrito está vacío</h2>
+    <p>Explora el catálogo y añade muebles a tu carrito.</p>
+    <a routerLink="/" class="boton boton--primario">Explorar catálogo</a>
+  </section>
+} @else {
+  <section class="carrito">
+    <header class="carrito__encabezado">
+      <h2>Tu carrito</h2>
+      <p class="carrito__contador">
+        {{ carrito.cantidadTotal() }}
+        {{ carrito.cantidadTotal() === 1 ? 'ítem' : 'ítems' }}
+      </p>
+    </header>
+
+    <div class="carrito__contenedor">
+      <ul class="carrito__lista">
+        @for (item of carrito.items(); track item.producto.id) {
+          <li class="carrito__item">
+            <div class="carrito__miniatura" [attr.data-marca]="item.producto.colorMarca">
+              <span>{{ item.producto.nombre }}</span>
+            </div>
+
+            <div class="carrito__info">
+              <h3>{{ item.producto.nombre }}</h3>
+              <p class="carrito__precio-unitario">{{ item.producto.precio | precio }} c/u</p>
+
+              <div class="carrito__controles">
+                <div class="carrito__cantidad" role="group" aria-label="Cantidad">
+                  <button type="button" (click)="cambiar(item.producto.id, -1)" aria-label="Disminuir">
+                    −
+                  </button>
+                  <span>{{ item.cantidad }}</span>
+                  <button type="button" (click)="cambiar(item.producto.id, 1)" aria-label="Aumentar">
+                    +
+                  </button>
+                </div>
+
+                <button type="button" class="carrito__eliminar" (click)="eliminar(item.producto.id)">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+
+            <p class="carrito__subtotal-linea">
+              {{ item.producto.precio * item.cantidad | precio }}
+            </p>
+          </li>
+        }
+      </ul>
+
+      <aside class="carrito__resumen" aria-label="Resumen del pedido">
+        <h3>Resumen</h3>
+        <dl>
+          <div>
+            <dt>Subtotal</dt>
+            <dd>{{ carrito.subtotal() | precio }}</dd>
+          </div>
+          <div>
+            <dt>Envío</dt>
+            <dd class="carrito__nota">Se calcula al finalizar</dd>
+          </div>
+        </dl>
+
+        <div class="carrito__total">
+          <span>Total</span>
+          <span class="carrito__total-valor">{{ total() | precio }}</span>
+        </div>
+
+        @if (error()) {
+          <p class="carrito__error">{{ error() }}</p>
+        }
+
+        <button type="button" class="boton boton--primario boton--bloque" [disabled]="procesando()" (click)="finalizarCompra()">
+          {{ procesando() ? 'Procesando…' : 'Finalizar compra' }}
+        </button>
+      </aside>
+    </div>
+  </section>
+}

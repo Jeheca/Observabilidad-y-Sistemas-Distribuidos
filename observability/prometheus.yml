@@ -1,0 +1,27 @@
+# Configuración de Prometheus para el taller.
+# Prometheus "scrapea" (consulta) el endpoint /metrics de cada microservicio.
+
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # auth-service: instrumentado como ejemplo de referencia.
+  - job_name: auth-service
+    static_configs:
+      - targets: ['auth-service:3001']
+
+  # products-service y orders-service aparecerán como DOWN en
+  # http://localhost:9090/targets hasta que el taller los instrumente
+  # con su propio endpoint /metrics.
+  - job_name: products-service
+    static_configs:
+      - targets: ['products-service:3002']
+
+  - job_name: orders-service
+    static_configs:
+      - targets: ['orders-service:3003']
+
+  # El propio Prometheus.
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']

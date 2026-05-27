@@ -1,0 +1,76 @@
+<div class="catalogo">
+  <aside class="catalogo__filtros" aria-label="Filtros del catálogo">
+    <p class="catalogo__filtros-titulo">Categorías</p>
+    <ul class="catalogo__chips">
+      <li>
+        <button type="button" class="chip-filtro" [class.chip-filtro--activo]="categoriaActiva() === null" (click)="seleccionarCategoria(null)">
+          Todas
+        </button>
+      </li>
+      @for (cat of categorias; track cat.id) {
+        <li>
+          <button type="button" class="chip-filtro" [class.chip-filtro--activo]="categoriaActiva() === cat.id" (click)="seleccionarCategoria(cat.id)">
+            {{ cat.nombre }}
+          </button>
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <section class="catalogo__resultados">
+    <header class="catalogo__encabezado">
+      <h2>Catálogo</h2>
+      @if (!cargando() && !error()) {
+        <p class="catalogo__contador">
+          {{ productosFiltrados().length }}
+          {{ productosFiltrados().length === 1 ? 'producto' : 'productos' }}
+        </p>
+      }
+    </header>
+
+    @if (cargando()) {
+      <div class="catalogo__vacio">
+        <p>Cargando productos…</p>
+      </div>
+    } @else if (error()) {
+      <div class="catalogo__vacio">
+        <p>No fue posible cargar el catálogo. Verifica que el servicio de productos esté arriba.</p>
+        <button type="button" class="boton boton--secundario" (click)="recargar()">
+          Reintentar
+        </button>
+      </div>
+    } @else if (productosFiltrados().length === 0) {
+      <div class="catalogo__vacio">
+        <p>No encontramos muebles que coincidan con tu búsqueda.</p>
+        <button type="button" class="boton boton--secundario" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </button>
+      </div>
+    } @else {
+      <ul class="catalogo__grilla">
+        @for (p of productosFiltrados(); track p.id) {
+          <li>
+            <a [routerLink]="['/producto', p.id]" class="tarjeta">
+              <div class="tarjeta__imagen" [attr.data-marca]="p.colorMarca">
+                <span>{{ p.nombre }}</span>
+              </div>
+              <div class="tarjeta__cuerpo">
+                <h3 class="tarjeta__nombre">{{ p.nombre }}</h3>
+                <p class="tarjeta__precio">{{ p.precio | precio }}</p>
+                @if (p.stock > 0) {
+                  <button type="button" class="boton boton--primario tarjeta__accion" (click)="agregar(p, $event)">
+                    Añadir al carrito
+                  </button>
+                } @else {
+                  <button type="button" class="boton boton--secundario tarjeta__accion" disabled>
+                    Agotado
+                  </button>
+                }
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

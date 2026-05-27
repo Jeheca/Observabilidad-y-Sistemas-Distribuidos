@@ -1,16 +1,23 @@
-# Taller de Observabilidad - Taracea
+# Taller de Observabilidad
 
-## Integrantes
+El objetivo de este taller es implementar un sistema de observabilidad sobre la tienda de muebles de **Taracea**.
 
-- 20211020110 - Daniel Felipe Sanchez Garcia
-- 20212020096 - Kevin Santiago Avella Torres
-- 20212020151 - Samuel Antonio Sanchez Peña
+## Sujeto de observación: la tienda Taracea
 
-## Solucion implementada
+Este repositorio contiene una SPA de un catálogo de muebles con filtros por categoría, búsqueda, detalle de producto, formulario de productos, carrito de compra e inicio de sesión.
+El catálogo, las órdenes y los usuarios viven en una base de datos PostgreSQL, expuesta a través de tres APIs en NestJS.
 
-Se instrumentaron los tres microservicios (auth-service, products-service, orders-service) con metricas (Prometheus) y logs estructurados (Pino -> Loki), siguiendo la guia de [`OBSERVABILIDAD.md`](OBSERVABILIDAD.md).
+## Arquitectura
 
-### Arquitectura
+El sistema se compone de un frontend, **tres microservicios** y una base de datos compartida. Todo se orquesta con `docker-compose.yaml`.
+
+| Componente                    | Carpeta             | Puerto | Responsabilidad                                                           |
+|-------------------------------|---------------------|--------|---------------------------------------------------------------------------|
+| **Web app**                   | `web-app/`          | `8080` | SPA en Angular: catálogo, detalle, creación de productos, carrito, login. |
+| **Servicio de Autenticación** | `auth-service/`     | `3001` | Registro e inicio de sesión de usuarios.                                  |
+| **Servicio de Productos**     | `products-service/` | `3002` | Catálogo de muebles: consulta por categoría y registro de productos.      |
+| **Servicio de Órdenes**       | `orders-service/`   | `3003` | Pedidos del carrito: creación y seguimiento de órdenes de compra.         |
+| **PostgreSQL**                | —                   | `5432` | Base de datos compartida por los tres microservicios.                     |
 
 ```
                     ┌─────────────┐
@@ -30,139 +37,89 @@ Se instrumentaron los tres microservicios (auth-service, products-service, order
         └───────────────────────────────┘
 ```
 
-### Stack de observabilidad
+### APIs
 
-```
-   auth-service    ──/metrics──▶ Prometheus ──┐
-   products-service──/metrics──▶               ├──▶ Grafana (http://localhost:3000)
-   orders-service  ──/metrics──▶               │
-        │                                     │
-        └──logs JSON ──▶ Promtail ──▶ Loki ───┘
-```
+**Autenticación** (`auth-service`)
 
-| Contenedor   | Puerto | Rol                                                        |
-|--------------|--------|------------------------------------------------------------|
-| `prometheus` | `9090` | Recolecta el endpoint `/metrics` de cada servicio.         |
-| `loki`       | `3100` | Almacena y consulta los logs.                              |
-| `promtail`   | --     | Lee los logs de todos los contenedores y los envia a Loki. |
-| `grafana`    | `3000` | Visualiza metricas y logs con dashboards pre-cargados.     |
+| Método | Ruta             | Descripción                                    |
+|--------|------------------|------------------------------------------------|
+| `POST` | `/auth/register` | Crea un usuario (`{ name, email, password }`). |
+| `POST` | `/auth/login`    | Inicia sesión (`{ email, password }`).         |
 
-### Como levantar el sistema
+**Productos** (`products-service`)
+
+| Método  | Ruta                       | Descripción                     |
+|---------|----------------------------|---------------------------------|
+| `GET`   | `/products`                | Todos los productos.            |
+| `GET`   | `/products?category=salas` | Productos de una categoría.     |
+| `GET`   | `/products/:id`            | Un producto por su id.          |
+| `POST`  | `/products`                | Registra un producto nuevo.     |
+| `PATCH` | `/products/:id/stock`      | Descuenta stock de un producto. |
+
+**Órdenes** (`orders-service`)
+
+| Método | Ruta          | Descripción               |
+|--------|---------------|---------------------------|
+| `GET`  | `/orders`     | Todas las órdenes.        |
+| `GET`  | `/orders/:id` | Una orden por su id.      |
+| `POST` | `/orders`     | Crea una orden de compra. |
+
+El detalle de cada API está en el `README.md` de su carpeta.
+
+## Cómo levantar el sistema
+
+Con [Docker](https://docs.docker.com/) instalado, desde la raíz del repositorio:
 
 ```bash
 docker compose up --build
 ```
 
-Servicios disponibles:
+Esto levanta todos los contenedores: PostgreSQL, los tres microservicios, la web app y el stack de observabilidad (Prometheus, Loki, Promtail y Grafana). Cuando todo esté arriba:
 
-- Tienda: http://localhost:8080
-- APIs: http://localhost:3001, http://localhost:3002, http://localhost:3003
-- Grafana: http://localhost:3000 (acceso anonimo, sin login)
-- Prometheus: http://localhost:9090/targets
+- Tienda: <http://localhost:8080>
+- APIs: <http://localhost:3001>, <http://localhost:3002>, <http://localhost:3003>
+- Grafana: <http://localhost:3000>
 
-Para detener y limpiar:
+La primera vez, el servicio de productos carga un catálogo semilla de 9 muebles si la base de datos está vacía. Para detener y limpiar:
 
 ```bash
 docker compose down        # detiene los contenedores
-docker compose down -v     # ademas borra los datos de PostgreSQL
+docker compose down -v     # además borra los datos de PostgreSQL
 ```
 
-### Metricas por servicio
+## Instrucciones del Taller
 
-**auth-service** (referencia original)
+El sistema base era funcional pero carecía de visibilidad interna. El objetivo del taller fue instrumentar el código y la infraestructura para dotar al sistema de métricas cuantitativas y logs centralizados, tomando como referencia la instrumentación ya existente en el servicio de autenticación (`auth-service`).
 
-| Metrica                         | Tipo      | Descripcion                                      |
-|---------------------------------|-----------|--------------------------------------------------|
-| `http_requests_total`           | Counter   | Peticiones HTTP por metodo, ruta y status.       |
-| `http_request_duration_seconds` | Histogram | Latencia p95 de peticiones HTTP.                 |
-| `auth_logins_total`             | Counter   | Intentos de login (`success`/`failure`).         |
-| `auth_registrations_total`      | Counter   | Registros de usuario exitosos.                   |
+### 1. Solución Implementada
 
-**products-service**
+#### 1.1 Requisitos
 
-| Metrica                         | Tipo      | Descripcion                                      |
-|---------------------------------|-----------|--------------------------------------------------|
-| `http_requests_total`           | Counter   | Peticiones HTTP por metodo, ruta y status.       |
-| `http_request_duration_seconds` | Histogram | Latencia p95 de peticiones HTTP.                 |
-| `products_created_total`        | Counter   | Productos creados.                               |
-| `products_stock_updates_total`  | Counter   | Actualizaciones de stock (`success`/`failure`).  |
+Se seleccionó el `products-service` como microservicio a instrumentar, dado que concentra la mayor cantidad de operaciones de lectura y escritura del sistema. La misma estrategia puede aplicarse de forma análoga al `orders-service`.
 
-**orders-service**
+#### 1.2 Implementación de Logs Estructurados
 
-| Metrica                         | Tipo      | Descripcion                                      |
-|---------------------------------|-----------|--------------------------------------------------|
-| `http_requests_total`           | Counter   | Peticiones HTTP por metodo, ruta y status.       |
-| `http_request_duration_seconds` | Histogram | Latencia p95 de peticiones HTTP.                 |
-| `orders_created_total`          | Counter   | Ordenes creadas, etiquetadas por `status`.       |
-| `orders_amount`                 | Histogram | Monto de las ordenes de compra.                  |
+Se modificó el microservicio para emitir logs en formato JSON estructurado, reemplazando el logger por defecto de NestJS por una implementación basada en `nestjs-pino` y `pino`. Cada entrada de log incluye contexto del servicio, eventos de negocio y mensajes de operación, lo que facilita su indexación y búsqueda.
 
-### Logs estructurados
+Para centralizar los logs, se configuró un stack compuesto por Promtail y Loki dentro de `docker-compose.yaml`. Promtail actúa como agente de recolección, leyendo los logs del contenedor del microservicio y enviándolos a Loki, que los almacena y los pone a disposición de Grafana para su consulta mediante LogQL.
 
-Cada servicio emite logs en formato JSON con Pino:
+#### 1.3 Visualización en Grafana
 
-- Campos base: `service`, `level`, `time`.
-- Eventos de negocio con campo `event` para filtrar en Loki.
-- Peticiones HTTP registradas automaticamente por `pino-http`.
-- El endpoint `/metrics` se excluye del log automatico.
+Se conectó Grafana a dos fuentes de datos: Prometheus (para métricas) y Loki (para logs). Se creó un dashboard dedicado al microservicio instrumentado con paneles para:
 
-| Servicio           | Evento                    | Nivel | Campos clave                                   |
-|--------------------|---------------------------|-------|------------------------------------------------|
-| `auth-service`     | `login_success`           | info  | `userId`, `email`                             |
-| `auth-service`     | `login_failed`            | warn  | `email`                                       |
-| `auth-service`     | `register_success`        | info  | `userId`, `email`                             |
-| `products-service` | `product_created`         | info  | `productId`, `name`, `category`               |
-| `products-service` | `stock_updated`           | info  | `productId`, `newStock`, `deducted`           |
-| `products-service` | `stock_update_failed`     | warn  | `productId`, `available`, `requested`         |
-| `products-service` | `product_not_found`       | warn  | `productId`                                   |
-| `orders-service`   | `order_created`           | info  | `orderId`, `userId`, `total`, `items`         |
-| `orders-service`   | `order_stock_insufficient`| warn  | `productId`, `productName`, `available`, `requested` |
-| `orders-service`   | `order_not_found`         | warn  | `orderId`                                     |
+- Tasa de peticiones por minuto (`http_requests_total`).
+- Latencia promedio y percentil 95 de las respuestas.
+- Tasa de errores HTTP en el tiempo.
+- Explorador de logs en tiempo real con filtros por servicio y eventos de negocio.
 
-### Dashboards en Grafana
+El dashboard permite observar de manera unificada tanto el comportamiento cuantitativo (métricas de Prometheus) como el cualitativo (logs de Loki), facilitando la identificación de anomalías y la correlación de eventos en el sistema.
 
-Grafana se aprovisiona automaticamente con tres dashboards (carpeta `Taracea`):
+### 2. Conclusiones
 
-1. **Auth Service · Observabilidad** -- Logins, registros, tasa de peticiones, latencia, errores, CPU/RAM.
-2. **Products Service · Observabilidad** -- Productos creados, stock actualizado/fallido, tasa de peticiones, latencia, errores, CPU/RAM.
-3. **Orders Service · Observabilidad** -- Ordenes creadas, monto total, monto promedio, distribucion de montos, tasa de peticiones, latencia, errores, CPU/RAM.
+La implementación de observabilidad sobre `products-service` permitió:
 
-Cada dashboard incluye un panel de logs de Loki.
-
-### Como verificar
-
-1. Levantar el sistema: `docker compose up --build`
-2. Usar la tienda en http://localhost:8080 para generar trafico (registrarse, iniciar sesion, crear productos, generar ordenes).
-3. Abrir Grafana en http://localhost:3000 > Dashboards > Taracea.
-4. Verificar que los tres servicios aparecen `UP` en http://localhost:9090/targets.
-5. En Grafana Explore, usar Loki para consultar logs:
-   ```logql
-   {service="products-service"}
-   {service="orders-service"} | json | event="order_created"
-   ```
-
-### APIs
-
-**Autenticacion** (`auth-service`)
-
-| Metodo | Ruta             | Descripcion                                    |
-|--------|------------------|------------------------------------------------|
-| `POST` | `/auth/register` | Crea un usuario (`{ name, email, password }`). |
-| `POST` | `/auth/login`    | Inicia sesion (`{ email, password }`).         |
-
-**Productos** (`products-service`)
-
-| Metodo  | Ruta                       | Descripcion                     |
-|---------|----------------------------|---------------------------------|
-| `GET`   | `/products`                | Todos los productos.            |
-| `GET`   | `/products?category=salas` | Productos de una categoria.     |
-| `GET`   | `/products/:id`            | Un producto por su id.          |
-| `POST`  | `/products`                | Registra un producto nuevo.     |
-| `PATCH` | `/products/:id/stock`      | Descuenta stock de un producto. |
-
-**Ordenes** (`orders-service`)
-
-| Metodo | Ruta          | Descripcion               |
-|--------|---------------|---------------------------|
-| `GET`  | `/orders`     | Todas las ordenes.        |
-| `GET`  | `/orders/:id` | Una orden por su id.      |
-| `POST` | `/orders`     | Crea una orden de compra. |
+1. Visibilidad de rendimiento: ahora es posible monitorear la tasa de peticiones, latencia, errores HTTP y uso de recursos (CPU, memoria) en tiempo real.
+2. Auditabilidad de eventos de negocio: cada operación relevante (creación de producto, actualización de stock y errores de inventario) queda registrada como un log estructurado con contexto completo.
+3. Métricas de negocio cuantificables: se pueden medir indicadores como el número de productos creados por minuto o la tasa de fallos de stock.
+4. Correlación métricas-logs: Grafana permite navegar de una anomalía en una métrica a los logs correspondientes en el mismo dashboard.
+5. Dashboard reutilizable: el dashboard creado para `products-service` sirve como plantilla para instrumentar otros microservicios del sistema.

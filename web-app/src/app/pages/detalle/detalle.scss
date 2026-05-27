@@ -1,0 +1,161 @@
+:host {
+  display: block;
+}
+
+.detalle__migas {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--color-texto-suave);
+  margin-bottom: var(--space-6);
+}
+
+.detalle__migas a {
+  color: var(--color-agua-marina);
+}
+
+.detalle__cuerpo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 800px) {
+  .detalle__cuerpo {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detalle__galeria {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radio);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  font-family: var(--font-titulo);
+  font-size: var(--fs-3xl);
+  color: #fff;
+  text-align: center;
+}
+
+.detalle__galeria[data-marca='berenjena'] {
+  background: linear-gradient(135deg, var(--color-berenjena), #6b3a68);
+}
+
+.detalle__galeria[data-marca='agua-marina'] {
+  background: linear-gradient(135deg, var(--color-agua-marina), #04b1b8);
+}
+
+.detalle__galeria[data-marca='mostaza'] {
+  background: linear-gradient(135deg, var(--color-mostaza), #f5c842);
+  color: var(--color-berenjena);
+}
+
+.detalle__categoria {
+  font-family: var(--font-acento);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--fs-sm);
+  color: var(--color-agua-marina);
+  margin: 0 0 var(--space-2);
+}
+
+.detalle__nombre {
+  margin: 0 0 var(--space-4);
+  font-size: var(--fs-3xl);
+}
+
+.detalle__descripcion {
+  color: var(--color-texto-suave);
+  line-height: 1.6;
+  margin: 0 0 var(--space-6);
+}
+
+.detalle__ficha {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.detalle__ficha > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+.detalle__ficha dt {
+  font-family: var(--font-acento);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: var(--color-agua-marina);
+}
+
+.detalle__ficha dd {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+.detalle__ficha-nota {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+  margin-top: 2px;
+}
+
+.detalle__compra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.detalle__cantidad {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.detalle__cantidad button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: var(--fs-lg);
+  color: var(--color-berenjena);
+  cursor: pointer;
+}
+
+.detalle__cantidad button:hover {
+  background: rgba(3, 152, 158, 0.08);
+}
+
+.detalle__cantidad span {
+  min-width: 40px;
+  text-align: center;
+  font-family: var(--font-acento);
+}
+
+.detalle__precio {
+  font-family: var(--font-acento);
+  color: var(--color-berenjena);
+  font-size: var(--fs-2xl);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.detalle__error {
+  padding: var(--space-12);
+  text-align: center;
+}
+
+.detalle__error p {
+  margin: 0 0 var(--space-4);
+  color: var(--color-texto-suave);
+}

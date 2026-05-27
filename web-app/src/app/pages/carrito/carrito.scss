@@ -1,0 +1,236 @@
+:host {
+  display: block;
+}
+
+.carrito__encabezado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.carrito__encabezado h2 {
+  margin: 0;
+}
+
+.carrito__contador {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--fs-sm);
+}
+
+.carrito__contenedor {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 900px) {
+  .carrito__contenedor {
+    grid-template-columns: 1fr 320px;
+    align-items: start;
+  }
+}
+
+.carrito__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.carrito__item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--space-3);
+}
+
+.carrito__miniatura {
+  width: 90px;
+  height: 90px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  font-family: var(--font-titulo), sans-serif;
+  font-size: 0.75rem;
+  color: #fff;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.carrito__miniatura[data-marca='berenjena'] {
+  background: linear-gradient(135deg, var(--color-berenjena), #6b3a68);
+}
+
+.carrito__miniatura[data-marca='agua-marina'] {
+  background: linear-gradient(135deg, var(--color-agua-marina), #04b1b8);
+}
+
+.carrito__miniatura[data-marca='mostaza'] {
+  background: linear-gradient(135deg, var(--color-mostaza), #f5c842);
+  color: var(--color-berenjena);
+}
+
+.carrito__info h3 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-base);
+}
+
+.carrito__precio-unitario {
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--color-texto-suave);
+}
+
+.carrito__controles {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.carrito__cantidad {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.carrito__cantidad button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: var(--fs-base);
+  cursor: pointer;
+  color: var(--color-berenjena);
+}
+
+.carrito__cantidad button:hover {
+  background: rgba(3, 152, 158, 0.08);
+}
+
+.carrito__cantidad span {
+  min-width: 32px;
+  text-align: center;
+  font-family: var(--font-acento), sans-serif;
+  font-size: var(--fs-sm);
+}
+
+.carrito__eliminar {
+  border: none;
+  background: transparent;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-decoration: underline;
+  padding: 0;
+}
+
+.carrito__eliminar:hover {
+  color: var(--color-error);
+}
+
+.carrito__subtotal-linea {
+  margin: 0;
+  font-family: var(--font-acento), sans-serif;
+  font-size: var(--fs-lg);
+  color: var(--color-berenjena);
+  align-self: start;
+}
+
+/* Resumen */
+.carrito__resumen {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--space-6);
+  position: sticky;
+  top: var(--space-4);
+}
+
+.carrito__resumen h3 {
+  margin: 0 0 var(--space-4);
+}
+
+.carrito__resumen dl {
+  margin: 0 0 var(--space-4);
+  padding: 0 0 var(--space-4);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.carrito__resumen dl > div {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-1) 0;
+  font-size: var(--fs-sm);
+}
+
+.carrito__resumen dt {
+  color: var(--color-texto-suave);
+}
+
+.carrito__resumen dd {
+  margin: 0;
+}
+
+.carrito__nota {
+  color: var(--color-texto-suave);
+  font-style: italic;
+}
+
+.carrito__error {
+  background: rgba(198, 40, 40, 0.08);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radio);
+  color: var(--color-error);
+  font-size: var(--fs-sm);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.carrito__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-4);
+  font-family: var(--font-titulo), sans-serif;
+}
+
+.carrito__total-valor {
+  font-family: var(--font-acento), sans-serif;
+  color: var(--color-berenjena);
+  font-size: var(--fs-2xl);
+  letter-spacing: 0.02em;
+}
+
+/* Estados especiales */
+.carrito__vacio,
+.carrito__confirmacion {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+}
+
+.carrito__vacio h2,
+.carrito__confirmacion h2 {
+  margin: 0 0 var(--space-3);
+}
+
+.carrito__vacio p,
+.carrito__confirmacion p {
+  margin: 0 0 var(--space-6);
+  color: var(--color-texto-suave);
+}

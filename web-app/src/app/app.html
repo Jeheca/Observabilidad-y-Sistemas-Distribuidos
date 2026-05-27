@@ -1,0 +1,42 @@
+@if (autenticacion.usuario(); as usuario) {
+  <header class="tienda__cabecera">
+    <div class="tienda__cabecera-interior">
+      <a routerLink="/" class="tienda__marca" aria-label="Inicio tienda Taracea">
+        <img src="/logos/taracea-berenjena.png" alt="Taracea"/>
+      </a>
+
+      <label class="tienda__busqueda">
+        <span class="tienda__busqueda-icono" aria-hidden="true">⌕</span>
+        <input type="search" placeholder="Buscar muebles…" [value]="busqueda.texto()" (input)="onBusquedaInput($event)" aria-label="Buscar muebles"/>
+      </label>
+
+      <nav class="tienda__acciones" aria-label="Acciones de la tienda">
+        <a routerLink="/nuevo-producto" class="tienda__enlace">+ Producto</a>
+
+        <span class="tienda__usuario">Hola, {{ usuario.nombre }}</span>
+        <button type="button" class="tienda__enlace tienda__enlace--boton" (click)="logout()">
+          Salir
+        </button>
+
+        <a routerLink="/carrito" class="tienda__carrito" aria-label="Ver carrito">
+          <span class="tienda__carrito-icono" aria-hidden="true">⛒</span>
+          @if (carrito.cantidadTotal() > 0) {
+            <span class="tienda__badge">{{ carrito.cantidadTotal() }}</span>
+          }
+        </a>
+      </nav>
+    </div>
+  </header>
+}
+
+<main class="tienda__contenido">
+  <div class="tienda__contenido-interior">
+    <router-outlet/>
+  </div>
+</main>
+
+@if (autenticacion.usuario()) {
+  <footer class="tienda__pie">
+    <p>Taracea · Muebles que cuentan historias</p>
+  </footer>
+}

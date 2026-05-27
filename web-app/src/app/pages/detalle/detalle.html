@@ -1,0 +1,73 @@
+@if (cargando()) {
+  <div class="detalle__error">
+    <p>Cargando producto…</p>
+  </div>
+} @else if (producto(); as p) {
+  <article class="detalle">
+    <nav class="detalle__migas" aria-label="Ubicación">
+      <a routerLink="/">Catálogo</a>
+      <span aria-hidden="true">›</span>
+      <span>{{ p.nombre }}</span>
+    </nav>
+
+    <div class="detalle__cuerpo">
+      <div class="detalle__galeria" [attr.data-marca]="p.colorMarca">
+        <span>{{ p.nombre }}</span>
+      </div>
+
+      <div class="detalle__panel">
+        <p class="detalle__categoria">{{ p.categoria }}</p>
+        <h2 class="detalle__nombre">{{ p.nombre }}</h2>
+
+        <p class="detalle__descripcion">{{ p.descripcion }}</p>
+
+        <dl class="detalle__ficha">
+          <div>
+            <dt>Materiales</dt>
+            <dd>{{ p.materiales.join(' · ') }}</dd>
+          </div>
+          <div>
+            <dt>Dimensiones</dt>
+            <dd>
+              {{ p.dimensiones.alto }} × {{ p.dimensiones.ancho }} × {{ p.dimensiones.profundidad }} cm
+              <span class="detalle__ficha-nota">(alto × ancho × profundidad)</span>
+            </dd>
+          </div>
+          <div>
+            <dt>Entrega</dt>
+            <dd>{{ p.tiempoEntrega }}</dd>
+          </div>
+          <div>
+            <dt>Disponibilidad</dt>
+            <dd>{{ p.stock > 0 ? p.stock + ' en inventario' : 'Agotado' }}</dd>
+          </div>
+        </dl>
+
+        <div class="detalle__compra">
+          <div class="detalle__cantidad" role="group" aria-label="Cantidad">
+            <button type="button" (click)="decrementar()" aria-label="Disminuir cantidad">−</button>
+            <span aria-live="polite">{{ cantidad() }}</span>
+            <button type="button" (click)="incrementar()" aria-label="Aumentar cantidad">+</button>
+          </div>
+
+          <p class="detalle__precio">{{ subtotal() | precio }}</p>
+        </div>
+
+        @if (p.stock > 0) {
+          <button type="button" class="boton boton--primario boton--bloque" (click)="add()">
+            Añadir al carrito
+          </button>
+        } @else {
+          <button type="button" class="boton boton--secundario boton--bloque" disabled>
+            Producto agotado
+          </button>
+        }
+      </div>
+    </div>
+  </article>
+} @else {
+  <div class="detalle__error">
+    <p>No encontramos ese producto.</p>
+    <a routerLink="/" class="boton boton--secundario">Volver al catálogo</a>
+  </div>
+}

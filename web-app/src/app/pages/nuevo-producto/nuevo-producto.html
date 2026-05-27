@@ -1,0 +1,113 @@
+<section class="form-pagina">
+  <nav class="form-pagina__migas" aria-label="Ubicación">
+    <a routerLink="/">Catálogo</a>
+    <span aria-hidden="true">›</span>
+    <span>Nuevo producto</span>
+  </nav>
+
+  <h2>Registrar un producto</h2>
+  <p class="form-pagina__intro">Completa los datos del mueble para añadirlo al catálogo.</p>
+
+  <form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()">
+    <div class="campo">
+      <label for="nombre">Nombre</label>
+      <input id="nombre" type="text" formControlName="nombre"/>
+      @if (campoInvalido('nombre')) {
+        <small class="campo__error">El nombre es obligatorio.</small>
+      }
+    </div>
+
+    <div class="campo">
+      <label for="descripcion">Descripción</label>
+      <textarea id="descripcion" rows="3" formControlName="descripcion"></textarea>
+      @if (campoInvalido('descripcion')) {
+        <small class="campo__error">La descripción es obligatoria.</small>
+      }
+    </div>
+
+    <div class="formulario__fila">
+      <div class="campo">
+        <label for="precio">Precio (COP)</label>
+        <input id="precio" type="number" min="1" formControlName="precio"/>
+        @if (campoInvalido('precio')) {
+          <small class="campo__error">Indica un precio mayor a cero.</small>
+        }
+      </div>
+      <div class="campo">
+        <label for="stock">Stock</label>
+        <input id="stock" type="number" min="0" formControlName="stock"/>
+        @if (campoInvalido('stock')) {
+          <small class="campo__error">Indica un stock válido.</small>
+        }
+      </div>
+    </div>
+
+    <div class="formulario__fila">
+      <div class="campo">
+        <label for="categoria">Categoría</label>
+        <select id="categoria" formControlName="categoria">
+          @for (cat of categorias; track cat.id) {
+            <option [value]="cat.id">{{ cat.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="campo">
+        <label for="colorMarca">Color de marca</label>
+        <select id="colorMarca" formControlName="colorMarca">
+          @for (color of coloresMarca; track color) {
+            <option [value]="color">{{ color }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="formulario__fila formulario__fila--triple">
+      <div class="campo">
+        <label for="alto">Alto (cm)</label>
+        <input id="alto" type="number" min="1" formControlName="alto"/>
+      </div>
+      <div class="campo">
+        <label for="ancho">Ancho (cm)</label>
+        <input id="ancho" type="number" min="1" formControlName="ancho"/>
+      </div>
+      <div class="campo">
+        <label for="profundidad">Profundidad (cm)</label>
+        <input id="profundidad" type="number" min="1" formControlName="profundidad"/>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="tiempoEntrega">Tiempo de entrega</label>
+      <input id="tiempoEntrega" type="text" formControlName="tiempoEntrega" placeholder="Ej. 6 a 8 semanas"/>
+      @if (campoInvalido('tiempoEntrega')) {
+        <small class="campo__error">Indica el tiempo de entrega.</small>
+      }
+    </div>
+
+    <fieldset class="materiales" formArrayName="materiales">
+      <legend>Materiales</legend>
+      @for (control of materialesArray.controls; track $index) {
+        <div class="materiales__fila">
+          <input type="text" [formControlName]="$index" placeholder="Ej. Roble macizo"/>
+          <button type="button" class="materiales__quitar" aria-label="Quitar material" [disabled]="materialesArray.length === 1" (click)="quitarMaterial($index)">
+            ×
+          </button>
+        </div>
+      }
+      <button type="button" class="boton boton--secundario" (click)="agregarMaterial()">
+        + Añadir material
+      </button>
+    </fieldset>
+
+    @if (error()) {
+      <p class="formulario__error">{{ error() }}</p>
+    }
+
+    <div class="formulario__acciones">
+      <a routerLink="/" class="boton boton--secundario">Cancelar</a>
+      <button type="submit" class="boton boton--primario" [disabled]="enviando()">
+        {{ enviando() ? 'Guardando…' : 'Guardar producto' }}
+      </button>
+    </div>
+  </form>
+</section>
